@@ -1,0 +1,10 @@
+# powerbar settings — remove the # and edit, then run: powerbar restart
+
+# TAU = 8            # smoothing in seconds (higher = calmer)
+# STEP_ABS = 1.5     # the number only changes at a difference of at least this many watts...
+# STEP_REL = 0.15    # ...or this fraction (0.15 = 15%), the larger wins
+# JUMP_ABS = 5       # large jump in watts that is shown immediately...
+# JUMP_REL = 0.5     # ...if it is also at least 50%...
+# JUMP_N = 3         # ...and persists for this many seconds
+# INTERVAL_MS = 1000 # sampling interval in milliseconds
+# WIDTH = 3          # digit slots in the menu bar (3 = up to 999 W)

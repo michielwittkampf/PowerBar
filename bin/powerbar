@@ -1,0 +1,42 @@
+#!/bin/bash
+# powerbar — turn the menu bar power meter on/off and manage it.
+set -euo pipefail
+
+REPO="${POWERBAR_REPO:-michielwittkampf/powerbar}"
+PLUGINS="$(defaults read com.ameba.SwiftBar PluginDirectory 2>/dev/null || echo "$HOME/.swiftbar")"
+PLUGINS="${PLUGINS/#\~/$HOME}"
+CONFIG="$HOME/.config/powerbar/config"
+
+swiftbar() { # make sure SwiftBar is running, then send the command
+  pgrep -x SwiftBar >/dev/null || { open -g -a SwiftBar; sleep 2; }
+  open -g "swiftbar://$1?name=powerbar"
+}
+
+is_disabled() {
+  defaults read com.ameba.SwiftBar DisabledPlugins 2>/dev/null | grep -q '"\{0,1\}powerbar\.py"\{0,1\}'
+}
+
+case "${1:-toggle}" in
+  on)        swiftbar enableplugin;  echo "powerbar: on" ;;
+  off)       swiftbar disableplugin; echo "powerbar: off" ;;
+  toggle)
+    if is_disabled; then swiftbar enableplugin; echo "powerbar: on"
+    else swiftbar disableplugin; echo "powerbar: off"; fi ;;
+  status)
+    if [ ! -f "$PLUGINS/powerbar.py" ]; then echo "not installed"
+    elif is_disabled; then echo "off"
+    else echo "on"; fi ;;
+  config)    mkdir -p "$(dirname "$CONFIG")"; touch "$CONFIG"; open -t "$CONFIG"
+             echo "After saving: powerbar restart" ;;
+  restart)   swiftbar disableplugin; sleep 1; swiftbar enableplugin; echo "powerbar: restarted" ;;
+  update)    curl -fsSL "https://raw.githubusercontent.com/$REPO/main/install.sh" | bash ;;
+  uninstall)
+    swiftbar disableplugin 2>/dev/null || true
+    rm -f "$PLUGINS/powerbar.py"
+    echo "Plugin removed. Settings are still in ~/.config/powerbar."
+    echo "macmon and SwiftBar are left in place (brew uninstall macmon / brew uninstall --cask swiftbar)."
+    rm -f "$0" ;;
+  -h|--help|help)
+    echo "usage: powerbar [on|off|toggle|status|config|restart|update|uninstall]" ;;
+  *) echo "unknown: $1 — see: powerbar help"; exit 1 ;;
+esac
