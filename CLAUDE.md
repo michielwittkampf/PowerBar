@@ -21,7 +21,6 @@ SwiftBar plugin that calmly shows the total system power draw of an Apple Silico
 - Homebrew may live in `~/.homebrew` (not only `/opt/homebrew`). See `MACMON_CANDIDATES` and use `brew --prefix`.
 - On/off goes through the URL scheme: `swiftbar://enableplugin|disableplugin|toggleplugin?name=powerbar`. The state is in `defaults read com.ameba.SwiftBar DisabledPlugins` (id = `powerbar.py`).
 - `install.sh` must work from a clone and via `curl | bash`. It must not overwrite an existing SwiftBar `PluginDirectory`.
-- The legacy-cleanup marker in `install.sh` (`Systeemvermogen (rustig)`) is intentionally Dutch: it matches text inside the old `power.py`.
 
 ## Testing without a Mac
 Put a fake `macmon` on the PATH that prints JSON lines with `sys_power`. Then run the plugin and compare the title lines (`grep "W :" | uniq`). Check the shell scripts with `shellcheck -S warning`.

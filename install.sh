@@ -37,13 +37,6 @@ fi
 PLUGINS="${PLUGINS/#\~/$HOME}"
 mkdir -p "$PLUGINS"
 
-# Clean up the old standalone version (power.py); the marker string is Dutch
-# because it matches the text inside that old file
-if [ -f "$PLUGINS/power.py" ] && grep -q "Systeemvermogen (rustig)" "$PLUGINS/power.py"; then
-  say "removing old power.py"
-  rm -f "$PLUGINS/power.py"
-fi
-
 say "plugin → $PLUGINS/powerbar.py"
 fetch powerbar.py "$PLUGINS/powerbar.py"
 chmod +x "$PLUGINS/powerbar.py"
