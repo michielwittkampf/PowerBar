@@ -1,9 +1,9 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
+  push:            # every branch: check a branch before main is moved to it
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
