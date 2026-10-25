@@ -1,4 +1,4 @@
-# powerbar ⚡
+# PowerBar ⚡
 
 Shows your **Mac's total power draw** in the menu bar, calmly, without the number jumping every second. Large changes still show up right away.
 
@@ -6,10 +6,10 @@ Shows your **Mac's total power draw** in the menu bar, calmly, without the numbe
  7W ⚡
 ```
 
-- **Source:** the SMC key `PSTR` (total system power). This is the same value as "System Total" in [Stats](https://github.com/exelban/stats). No sudo needed.
 - **Calm:** the value is sampled every second and smoothed over about 8 seconds. The number only changes at a difference of at least 1.5 W or 15%.
 - **Still alert:** a large jump (≥ 5 W and ≥ 50%) that persists for 3 seconds is shown immediately.
 - **Fixed width:** empty digit slots are padded, so the icons to its left stay in place. The bolt sits to the right of the number.
+- **Source:** the SMC key `PSTR` (total system power). This is the same value as "System Total" in [Stats](https://github.com/exelban/stats). No sudo needed.
 
 Works on Apple Silicon Macs (M1 and later). There are two ways to run it. Both show the same number and read the same settings file:
 
