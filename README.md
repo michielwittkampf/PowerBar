@@ -1,8 +1,8 @@
 # PowerBar ⚡
 
-Do you simply want to know how much energy your mac draws with your current activity and settings? For example to know how quickly you drain your battery? 
+Want to know how much power your Mac draws with what you're doing right now? For example, to see how fast you're draining your battery?
 
-Showing it on screen while working helps getting insight. And especially if it is without distracting graphics or settings that defeat the goal.
+Seeing it on screen while you work gives you that insight, as long as it doesn't distract you with graphs or settings.
 
 PowerBar shows your **Mac's total power draw** in the menu bar, calmly, without the number jumping every second. Large changes still show up right away.
 
