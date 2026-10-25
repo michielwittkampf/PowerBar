@@ -1,6 +1,8 @@
 #!/usr/bin/python3
 # <xbar.title>powerbar</xbar.title>
-# <xbar.version>1.0.0</xbar.version>
+# <xbar.version>0.4.0</xbar.version>
+# <xbar.author>Michiel Wittkampf</xbar.author>
+# <xbar.abouturl>https://github.com/michielwittkampf/powerbar#readme</xbar.abouturl>
 # <xbar.desc>Total power draw of the Mac (SMC PSTR via macmon), smoothed with a threshold.</xbar.desc>
 # <xbar.dependencies>macmon</xbar.dependencies>
 # <swiftbar.type>streamable</swiftbar.type>
@@ -34,16 +36,33 @@ INTERVAL_MS = 1000   # sampling interval
 TAU = 8.0            # smoothing in seconds (higher = calmer)
 STEP_ABS = 1.5       # minimum change in W before the number changes
 STEP_REL = 0.15      # ...or as a fraction of the displayed value (the larger wins)
-JUMP_ABS = 5.0     # a "substantial" jump in W
-JUMP_REL = 0.5     # ...and as a fraction of the displayed value
-JUMP_N = 3         # number of consecutive samples the jump must persist
+JUMP_ABS = 5.0       # a "substantial" jump in W
+JUMP_REL = 0.5       # ...and as a fraction of the displayed value
+JUMP_N = 3           # number of consecutive samples the jump must persist
 MENU_REFRESH = 5     # refresh dropdown details every N seconds
-WIDTH = 3          # digit slots in the menu bar; 3 = up to 999 W
-MAX_W = 500.0      # readings above this are SMC glitches and are ignored
+WIDTH = 3            # digit slots in the menu bar; 3 = up to 999 W
+MAX_W = 500.0        # readings above this are SMC glitches and are ignored
 # ---------------------------------------------------------------------------
 # Put your own values in ~/.config/powerbar/config (one KEY=value per line)
 # so they survive an update.
 CONFIG = os.path.expanduser("~/.config/powerbar/config")
+DOCS_URL = "https://github.com/michielwittkampf/powerbar#readme"
+
+# The accepted range per key. A value outside it is ignored (the default stays),
+# so a typo can't stall the loop or divide by zero. Keep in sync with
+# `Settings.limits` in the native app.
+LIMITS = {
+    "INTERVAL_MS": (100, 60000),
+    "TAU": (0.1, 3600),
+    "STEP_ABS": (0, 1000),
+    "STEP_REL": (0, 10),
+    "JUMP_ABS": (0, 1000),
+    "JUMP_REL": (0, 10),
+    "JUMP_N": (1, 600),
+    "MENU_REFRESH": (1, 3600),
+    "WIDTH": (1, 6),
+    "MAX_W": (1, 100000),
+}
 
 
 def load_config():
@@ -56,11 +75,15 @@ def load_config():
             if "=" not in line:
                 continue
             key, val = (x.strip() for x in line.split("=", 1))
-            if key in g and isinstance(g[key], (int, float)) and not isinstance(g[key], bool):
-                try:
-                    g[key] = type(g[key])(float(val))
-                except ValueError:
-                    pass
+            if key not in LIMITS:
+                continue
+            try:
+                v = float(val)
+            except ValueError:
+                continue
+            lo, hi = LIMITS[key]
+            if lo <= v <= hi:  # also rejects nan
+                g[key] = type(g[key])(v)
 
 
 MACMON_CANDIDATES = [
@@ -114,6 +137,7 @@ def menu(shown, ema, raw, d, peak, source):
         f"Source: {source} · smoothing {TAU:g}s · threshold ±{STEP_ABS:g}W/{STEP_REL:.0%} | size=11",
         "---",
         f"Settings… | bash=/usr/bin/open param1=-t param2={CONFIG} terminal=false",
+        f"Documentation | href={DOCS_URL}",
         "Disable | href=swiftbar://disableplugin?name=powerbar",
     ]
 

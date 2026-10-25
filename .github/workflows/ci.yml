@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+      - name: Swift tests
+        run: swift test --package-path app
+      - name: Build the app
+        run: app/build.sh
+      - name: Shellcheck
+        run: |
+          brew install shellcheck
+          shellcheck -S warning install.sh bin/powerbar raycast/*.sh app/build.sh
+      - name: Plugin syntax
+        run: /usr/bin/python3 -m py_compile powerbar.py

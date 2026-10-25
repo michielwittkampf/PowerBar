@@ -1,29 +1,19 @@
 import AppKit
 import PowerBarCore
-import ServiceManagement
 
-final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
-    private var statusItem: NSStatusItem!
+/// Wires the pieces together: SMC reading → smoothing → menu bar title and dropdown.
+final class AppDelegate: NSObject, NSApplicationDelegate {
     private let reader = SMCReader()
+    private let menu = MenuController()
+    private var statusItem: StatusItemController!
     private var settings = Settings()
     private var smoother = Smoother(settings: Settings())
     private var last: Sample?
-
-    // Menu rows that change; created once, their titles are updated.
-    private let smoothedItem = NSMenuItem()
-    private let lastItem = NSMenuItem()
-    private let peakItem = NSMenuItem()
-    private let sourceItem = NSMenuItem()
-    private let loginItem = NSMenuItem(title: "Open at Login", action: #selector(toggleLogin), keyEquivalent: "")
-
-    // The default menu bar font, but with tabular (equally wide) digits.
-    private let font = NSFont.monospacedDigitSystemFont(ofSize: NSFont.menuBarFont(ofSize: 0).pointSize, weight: .regular)
+    private var retry: DispatchWorkItem?
 
     func applicationDidFinishLaunching(_ note: Notification) {
-        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
-        statusItem.button?.imagePosition = .imageTrailing  // bolt to the right of the number
-        statusItem.menu = buildMenu()
-
+        statusItem = StatusItemController(menu: menu.menu)
+        menu.onReload = { [weak self] in self?.restart() }
         reader.onSample = { [weak self] in self?.handle($0) }
         // Start fresh on wake: the smoothing should not average across sleep.
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -31,126 +21,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         restart()
     }
 
-    // MARK: - Data
-
     @objc private func restart() {
         reader.stop()
+        retry?.cancel()  // one pending retry at most; a successful reload needs none
         settings = Settings.load()
         smoother = Smoother(settings: settings)
         last = nil
-        fixWidth()
+        statusItem.fixWidth(digits: settings.width)
+        statusItem.show(nil)  // before start(): its first reading arrives synchronously
         do {
             try reader.start(intervalMs: settings.intervalMs)
-            setTitle(nil, symbol: "bolt.fill")
         } catch {
-            setTitle(nil, symbol: "bolt.slash")
-            sourceItem.title = "Error: \(error.localizedDescription)"
-            scheduleRestart(after: 60)
+            statusItem.show(nil, ok: false)
+            menu.showInfo("Error: \(error.localizedDescription)")
+            let work = DispatchWorkItem { [weak self] in self?.restart() }
+            retry = work
+            DispatchQueue.main.asyncAfter(deadline: .now() + 60, execute: work)
         }
-    }
-
-    private func scheduleRestart(after seconds: Double) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in self?.restart() }
+        menu.update(smoother: smoother, last: last, settings: settings)
     }
 
     private func handle(_ sample: Sample) {
         guard settings.isPlausible(sample.power) else { return }
         last = sample
         if smoother.add(sample.power) {
-            setTitle(smoother.shown, symbol: "bolt.fill")
+            statusItem.show(smoother.shown)
         }
-        updateMenu()
-    }
-
-    // MARK: - Menu bar title
-
-    private func setTitle(_ watts: Double?, symbol: String) {
-        guard let button = statusItem.button else { return }
-        button.attributedTitle = NSAttributedString(
-            string: formatTitle(watts, width: settings.width), attributes: [.font: font])
-        let image = NSImage(systemSymbolName: symbol, accessibilityDescription: "power")
-        image?.isTemplate = true
-        button.image = image
-    }
-
-    /// A fixed length, measured on the widest possible title, so the icons to the
-    /// left never shift.
-    private func fixWidth() {
-        statusItem.length = NSStatusItem.variableLength
-        setTitle(pow(10, Double(settings.width)) - 1, symbol: "bolt.fill")
-        if let button = statusItem.button {
-            statusItem.length = ceil(button.fittingSize.width)
-        }
-    }
-
-    // MARK: - Dropdown
-
-    private func buildMenu() -> NSMenu {
-        let menu = NSMenu()
-        menu.delegate = self
-        for item in [smoothedItem, lastItem, peakItem, sourceItem] {
-            item.isEnabled = false
-        }
-        [smoothedItem, lastItem, peakItem].forEach(menu.addItem)
-        menu.addItem(.separator())
-        menu.addItem(sourceItem)
-        menu.addItem(.separator())
-        menu.addItem(withTitle: "Settings…", action: #selector(openSettings), keyEquivalent: ",").target = self
-        menu.addItem(withTitle: "Reload Settings", action: #selector(restart), keyEquivalent: "r").target = self
-        loginItem.target = self
-        menu.addItem(loginItem)
-        menu.addItem(.separator())
-        menu.addItem(withTitle: "Quit PowerBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
-        updateMenu()
-        return menu
-    }
-
-    private func updateMenu() {
-        func w(_ x: Double?) -> String { x.map { String(format: "%.1f W", $0) } ?? "–" }
-        smoothedItem.title = "Smoothed: \(w(smoother.ema))"
-        lastItem.title = "Last reading: \(w(last?.power))"
-        peakItem.title = "Peak since start: \(w(last == nil ? nil : smoother.peak))"
-        if let last {
-            let s = settings
-            let text = "Source: \(last.source) · smoothing \(fmt(s.tau))s · threshold ±\(fmt(s.stepAbs))W/\(Int((s.stepRel * 100).rounded()))%"
-            sourceItem.attributedTitle = NSAttributedString(
-                string: text, attributes: [.font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)])
-        }
-    }
-
-    private func fmt(_ x: Double) -> String { String(format: "%g", x) }
-
-    func menuWillOpen(_ menu: NSMenu) {
-        loginItem.state = SMAppService.mainApp.status == .enabled ? .on : .off
-    }
-
-    // MARK: - Actions
-
-    @objc private func openSettings() {
-        let url = Settings.path
-        let fm = FileManager.default
-        if !fm.fileExists(atPath: url.path) {
-            try? fm.createDirectory(at: url.deletingLastPathComponent(), withIntermediateDirectories: true)
-            let example = Bundle.main.url(forResource: "config", withExtension: "example")
-            let text = example.flatMap { try? String(contentsOf: $0, encoding: .utf8) } ?? ""
-            try? text.write(to: url, atomically: true, encoding: .utf8)
-        }
-        let textEdit = URL(fileURLWithPath: "/System/Applications/TextEdit.app")
-        NSWorkspace.shared.open([url], withApplicationAt: textEdit, configuration: NSWorkspace.OpenConfiguration())
-    }
-
-    @objc private func toggleLogin() {
-        let service = SMAppService.mainApp
-        do {
-            if service.status == .enabled {
-                try service.unregister()
-            } else {
-                try service.register()
-            }
-        } catch {
-            let alert = NSAlert(error: error)
-            alert.messageText = "Could not change Open at Login"
-            alert.runModal()
-        }
+        menu.update(smoother: smoother, last: last, settings: settings)
     }
 }

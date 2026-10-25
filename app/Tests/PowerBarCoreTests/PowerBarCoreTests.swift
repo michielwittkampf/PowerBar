@@ -17,6 +17,22 @@ final class SettingsTests: XCTestCase {
         XCTAssertEqual(s.stepAbs, Settings().stepAbs)
     }
 
+    /// Values that would stall the timer, divide by zero or crash on Int(_:)
+    /// are ignored, so the default stays.
+    func testParseIgnoresValuesOutOfRange() {
+        let s = Settings.parse("""
+        INTERVAL_MS = 0
+        JUMP_N = 0
+        WIDTH = 1e30
+        TAU = -1
+        MAX_W = nan
+        STEP_REL = inf
+        STEP_ABS = 0x10
+        """)
+        XCTAssertEqual(s, Settings())
+        XCTAssertEqual(Settings.parse("INTERVAL_MS = 250").intervalMs, 250)
+    }
+
     func testMaxWRejectsGlitches() {
         let s = Settings()
         XCTAssertTrue(s.isPlausible(34.1))
@@ -65,6 +81,17 @@ final class SmootherTests: XCTestCase {
         XCTAssertEqual(formatTitle(123, width: 3), "123W")
         XCTAssertEqual(formatTitle(5000, width: 3), "999W")
         XCTAssertEqual(formatTitle(nil, width: 3), "\u{2007}\u{2007}?W")
+        XCTAssertEqual(formatTitle(.nan, width: 3), "\u{2007}\u{2007}?W")
+    }
+
+    func testMenuTextMatchesPlugin() {
+        XCTAssertEqual(formatWatts(12.345), "12.3 W")
+        XCTAssertEqual(formatWatts(nil), "–")
+        XCTAssertEqual(formatSourceLine(source: "SMC PSTR (whole system)", settings: Settings()),
+                       "Source: SMC PSTR (whole system) · smoothing 8s · threshold ±1.5W/15%")
+        var s = Settings()
+        s.stepRel = 0.125  // Python's {:.0%} gives 12%
+        XCTAssertTrue(formatSourceLine(source: "x", settings: s).hasSuffix("/12%"))
     }
 }
 

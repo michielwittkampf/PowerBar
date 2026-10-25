@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-VERSION="0.3.0"
+VERSION="0.4.0"
 APP="$HERE/build/PowerBar.app"
 
 swift build --package-path "$HERE" -c release
@@ -31,11 +31,14 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
+  <key>NSHumanReadableCopyright</key><string>© Michiel Wittkampf · MIT License</string>
 </dict>
 </plist>
 EOF
 
-codesign --force --sign - "$APP"
+# Ad-hoc signature with the hardened runtime: no Developer ID, so Gatekeeper
+# still asks on first launch of a downloaded copy (see README).
+codesign --force --options runtime --sign - "$APP"
 echo "Built $APP"
 
 if [ "${1:-}" = "--install" ]; then

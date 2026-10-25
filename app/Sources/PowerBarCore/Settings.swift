@@ -1,7 +1,7 @@
 import Foundation
 
-/// User settings. Same keys and defaults as the SwiftBar plugin, read from the
-/// same file (`~/.config/powerbar/config`, one `KEY=value` per line).
+/// User settings. Same keys, defaults and limits as the SwiftBar plugin, read from
+/// the same file (`~/.config/powerbar/config`, one `KEY=value` per line).
 public struct Settings: Equatable {
     public var intervalMs = 1000   // sampling interval
     public var tau = 8.0           // smoothing in seconds (higher = calmer)
@@ -22,12 +22,27 @@ public struct Settings: Equatable {
     public static let path = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".config/powerbar/config")
 
+    /// The accepted range per key. A value outside it is ignored (the default
+    /// stays), so a typo can't stall the timer, divide by zero or overflow.
+    /// Keep in sync with `LIMITS` in powerbar.py.
+    public static let limits: [String: ClosedRange<Double>] = [
+        "INTERVAL_MS": 100...60_000,
+        "TAU": 0.1...3600,
+        "STEP_ABS": 0...1000,
+        "STEP_REL": 0...10,
+        "JUMP_ABS": 0...1000,
+        "JUMP_REL": 0...10,
+        "JUMP_N": 1...600,
+        "WIDTH": 1...6,
+        "MAX_W": 1...100_000,
+    ]
+
     public static func load(from url: URL = path) -> Settings {
         guard let text = try? String(contentsOf: url, encoding: .utf8) else { return Settings() }
         return parse(text)
     }
 
-    /// Unknown keys and unparsable values are ignored, like in the plugin.
+    /// Unknown keys, unparsable values and values out of range are ignored, like in the plugin.
     public static func parse(_ text: String) -> Settings {
         var s = Settings()
         for rawLine in text.split(whereSeparator: \.isNewline) {
@@ -35,7 +50,10 @@ public struct Settings: Equatable {
             let parts = line.split(separator: "=", maxSplits: 1)
             guard parts.count == 2 else { continue }
             let key = parts[0].trimmingCharacters(in: .whitespaces)
-            guard let v = Double(parts[1].trimmingCharacters(in: .whitespaces)) else { continue }
+            let value = parts[1].trimmingCharacters(in: .whitespaces)
+            guard value.allSatisfy({ "0123456789.+-eE".contains($0) }),  // decimal only, no hex
+                  let v = Double(value),
+                  let range = limits[key], range.contains(v) else { continue }
             switch key {
             case "INTERVAL_MS": s.intervalMs = Int(v)
             case "TAU": s.tau = v

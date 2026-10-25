@@ -1,7 +1,6 @@
 // Generates app/Resources/AppIcon.icns: the SF Symbol bolt.fill (the same bolt
-// as in the menu bar) on a rounded square, in the style of
-// ~/.mac-maintenance/lib/make-icon.py. That script draws a font glyph, and the
-// SF fonts have no bolt character, hence this Swift version.
+// as in the menu bar) on a rounded square. It draws the symbol through AppKit,
+// because the SF fonts have no bolt character to draw as text.
 // Usage: swift app/make-icon.swift   (output is committed; rerun only to change it)
 import AppKit
 

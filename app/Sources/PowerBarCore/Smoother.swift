@@ -53,15 +53,3 @@ public struct Smoother {
         return false
     }
 }
-
-/// Empty digit slots are padded with a FIGURE SPACE (U+2007), which is as wide
-/// as a digit. Together with tabular digits this keeps the title the same width.
-public func formatTitle(_ watts: Double?, width: Int) -> String {
-    let number: String
-    if let w = watts {
-        number = String(Int(min(w, pow(10, Double(width)) - 1).rounded()))
-    } else {
-        number = "?"
-    }
-    return String(repeating: "\u{2007}", count: max(0, width - number.count)) + number + "W"
-}
