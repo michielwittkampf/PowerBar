@@ -4,11 +4,13 @@ Want to know how much power your Mac draws with what you're doing right now? For
 
 PowerBar shows your **Mac's total power draw** in the menu bar, calmly, without the number jumping every second. Large changes still show up right away.
 
-Seeing the wattages on screen while you work gives you that insight. For me it was important that the app doesn't distract with graphs, jumping numbers or mandatory settings.
-
 ```
  7W ⚡
 ```
+
+Seeing the wattages on screen while you work gives you insight. For me it was important that the app doesn't distract with graphs, jumping numbers or mandatory settings.
+
+## Details
 
 - **Calm:** the value is sampled every second and smoothed over about 8 seconds. The number only changes once the difference is at least 1.5 W and at least 15%. It uses a fixed-width slot so the icons to its left never shift.
 - **Still alert:** a large jump (≥ 5 W and ≥ 50%) that persists for 3 seconds is shown immediately.
@@ -25,10 +27,12 @@ Works on Apple Silicon Macs (M1 and later) with macOS 13 or later.
 
 Choose *Settings ▸ Open at Login* in the PowerBar menu if you want it to start with your Mac.
 
+*Is the download really built from this code?* See [Security and privacy](#security-and-privacy) if you want to check it.
+
+## Update and Remove
+
 - **Update:** download the new release and replace the app. Your settings stay.
 - **Remove:** turn off *Settings ▸ Open at Login*, quit PowerBar, then delete PowerBar from Applications (and `~/.config/powerbar` if you want your settings gone).
-
-*Is the download really built from this code?* See [Security and privacy](#security-and-privacy) if you want to check it.
 
 ### Build it yourself
 
