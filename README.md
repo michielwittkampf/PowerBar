@@ -51,6 +51,16 @@ Your settings live in `~/.config/powerbar/config` and survive an update. See [`c
 
 > Upgrading from an earlier version? The settings were renamed (`STAP_*` → `STEP_*`, `SPRONG_*` → `JUMP_*`, `BREEDTE` → `WIDTH`); update your config file if you had customised them.
 
+## Native app (experimental)
+
+[`app/`](app) contains a standalone menu bar app, so you no longer need SwiftBar. It shows the same number with the same smoothing, reads the same `~/.config/powerbar/config`, and still uses `macmon` as its data source. Because it uses a fixed status item width and tabular digits, the width never changes, not even by a pixel.
+
+```bash
+app/build.sh --install   # builds PowerBar.app, copies it to ~/Applications and starts it
+```
+
+This needs Xcode or the Command Line Tools (Swift 5.9+) and macOS 13 or later. The dropdown has *Settings…*, *Reload Settings*, *Open at Login* and *Quit*. Turn off the SwiftBar plugin (`powerbar off`) so you don't get two meters.
+
 ## Known limitation
 
 SwiftBar can't reserve a fixed pixel width. In the system font, digits are not all equally wide (a `1` is narrower than an `8`), so the width can vary by a few pixels.
