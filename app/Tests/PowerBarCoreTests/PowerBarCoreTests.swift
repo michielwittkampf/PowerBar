@@ -27,23 +27,6 @@ final class SettingsTests: XCTestCase {
     }
 }
 
-final class SampleTests: XCTestCase {
-    func testPrefersSysPowerAndFallsBackToAllPower() {
-        let sys = Sample(json: Data(#"{"sys_power": 14.9, "all_power": 0.7, "cpu_power": 0.2}"#.utf8))
-        XCTAssertEqual(sys?.power, 14.9)
-        XCTAssertEqual(sys?.cpu, 0.2)
-        let chip = Sample(json: Data(#"{"sys_power": 0, "all_power": 3.5}"#.utf8))
-        XCTAssertEqual(chip?.power, 3.5)
-        XCTAssertEqual(chip?.source, "chip only (CPU+GPU+ANE)")
-    }
-
-    func testOldNestedFormatAndJunk() {
-        XCTAssertEqual(Sample(json: Data(#"{"metrics": {"sys_power": 9}}"#.utf8))?.power, 9)
-        XCTAssertNil(Sample(json: Data("not json".utf8)))
-        XCTAssertNil(Sample(json: Data(#"{"sys_power": 0}"#.utf8)))
-    }
-}
-
 final class SmootherTests: XCTestCase {
     func testSmallNoiseKeepsNumberStill() {
         var s = Smoother(settings: Settings())
@@ -82,5 +65,40 @@ final class SmootherTests: XCTestCase {
         XCTAssertEqual(formatTitle(123, width: 3), "123W")
         XCTAssertEqual(formatTitle(5000, width: 3), "999W")
         XCTAssertEqual(formatTitle(nil, width: 3), "\u{2007}\u{2007}?W")
+    }
+}
+
+final class SMCTests: XCTestCase {
+    func testFourCCRoundTrip() {
+        XCTAssertEqual(SMC.fourCC("PSTR"), 0x5053_5452)
+        XCTAssertEqual(SMC.string(fourCC: 0x666C_7420), "flt ")
+    }
+
+    func testRequestLayout() {
+        let b = SMC.request(key: "PSTR", command: SMC.cmdReadBytes, dataSize: 4)
+        XCTAssertEqual(b.count, 80)
+        XCTAssertEqual(Array(b[0..<4]), [0x52, 0x54, 0x53, 0x50])  // key, little-endian UInt32
+        XCTAssertEqual(Array(b[28..<32]), [4, 0, 0, 0])            // keyInfo.dataSize
+        XCTAssertEqual(b[42], 5)                                    // data8 = command
+    }
+
+    /// A key-info reply and a read reply as AppleSMC returned them for PSTR on an M5 Pro.
+    func testParsesReplies() {
+        var info = [UInt8](repeating: 0, count: 80)
+        info.replaceSubrange(28..<36, with: [4, 0, 0, 0, 0x20, 0x74, 0x6C, 0x66])
+        XCTAssertEqual(SMC.keyInfo(info).size, 4)
+        XCTAssertEqual(SMC.keyInfo(info).type, "flt ")
+        XCTAssertEqual(SMC.result(info), 0)
+
+        var read = [UInt8](repeating: 0, count: 80)
+        read.replaceSubrange(48..<52, with: [0x9A, 0xD9, 0x0A, 0x41])  // 8.678125 as float32 LE
+        let value = SMC.decode(type: "flt ", bytes: SMC.bytes(read, size: 4))
+        XCTAssertEqual(value!, 8.678, accuracy: 0.001)
+    }
+
+    func testDecodeRejectsOtherTypesAndNaN() {
+        XCTAssertNil(SMC.decode(type: "ui32", bytes: [1, 0, 0, 0]))
+        XCTAssertNil(SMC.decode(type: "flt ", bytes: [1, 0]))
+        XCTAssertNil(SMC.decode(type: "flt ", bytes: [0, 0, 0xC0, 0x7F]))  // NaN
     }
 }

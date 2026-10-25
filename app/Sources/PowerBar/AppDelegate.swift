@@ -4,7 +4,7 @@ import ServiceManagement
 
 final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private var statusItem: NSStatusItem!
-    private let reader = MacmonReader()
+    private let reader = SMCReader()
     private var settings = Settings()
     private var smoother = Smoother(settings: Settings())
     private var last: Sample?
@@ -13,10 +13,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private let smoothedItem = NSMenuItem()
     private let lastItem = NSMenuItem()
     private let peakItem = NSMenuItem()
-    private let cpuItem = NSMenuItem()
-    private let gpuItem = NSMenuItem()
-    private let aneItem = NSMenuItem()
-    private let ramItem = NSMenuItem()
     private let sourceItem = NSMenuItem()
     private let loginItem = NSMenuItem(title: "Open at Login", action: #selector(toggleLogin), keyEquivalent: "")
 
@@ -28,9 +24,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         statusItem.button?.imagePosition = .imageTrailing  // bolt to the right of the number
         statusItem.menu = buildMenu()
 
-        reader.onLine = { [weak self] in self?.handle($0) }
-        reader.onExit = { [weak self] in self?.scheduleRestart() }
-        // macmon may stall or exit across sleep; start it fresh on wake.
+        reader.onSample = { [weak self] in self?.handle($0) }
+        // Start fresh on wake: the smoothing should not average across sleep.
         NSWorkspace.shared.notificationCenter.addObserver(
             self, selector: #selector(restart), name: NSWorkspace.didWakeNotification, object: nil)
         restart()
@@ -44,28 +39,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         smoother = Smoother(settings: settings)
         last = nil
         fixWidth()
-        guard let macmon = MacmonReader.find() else {
-            setTitle(nil, symbol: "bolt.slash")
-            sourceItem.title = "macmon not found. Install with: brew install macmon"
-            scheduleRestart(after: 60)
-            return
-        }
         do {
-            try reader.start(executable: macmon, intervalMs: settings.intervalMs)
+            try reader.start(intervalMs: settings.intervalMs)
             setTitle(nil, symbol: "bolt.fill")
         } catch {
             setTitle(nil, symbol: "bolt.slash")
             sourceItem.title = "Error: \(error.localizedDescription)"
-            scheduleRestart()
+            scheduleRestart(after: 60)
         }
     }
 
-    private func scheduleRestart(after seconds: Double = 3) {
+    private func scheduleRestart(after seconds: Double) {
         DispatchQueue.main.asyncAfter(deadline: .now() + seconds) { [weak self] in self?.restart() }
     }
 
-    private func handle(_ line: Data) {
-        guard let sample = Sample(json: line), settings.isPlausible(sample.power) else { return }
+    private func handle(_ sample: Sample) {
+        guard settings.isPlausible(sample.power) else { return }
         last = sample
         if smoother.add(sample.power) {
             setTitle(smoother.shown, symbol: "bolt.fill")
@@ -99,12 +88,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     private func buildMenu() -> NSMenu {
         let menu = NSMenu()
         menu.delegate = self
-        for item in [smoothedItem, lastItem, peakItem, cpuItem, gpuItem, aneItem, ramItem, sourceItem] {
+        for item in [smoothedItem, lastItem, peakItem, sourceItem] {
             item.isEnabled = false
         }
         [smoothedItem, lastItem, peakItem].forEach(menu.addItem)
-        menu.addItem(.separator())
-        [cpuItem, gpuItem, aneItem, ramItem].forEach(menu.addItem)
         menu.addItem(.separator())
         menu.addItem(sourceItem)
         menu.addItem(.separator())
@@ -123,10 +110,6 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
         smoothedItem.title = "Smoothed: \(w(smoother.ema))"
         lastItem.title = "Last reading: \(w(last?.power))"
         peakItem.title = "Peak since start: \(w(last == nil ? nil : smoother.peak))"
-        cpuItem.title = "CPU: \(w(last?.cpu))"
-        gpuItem.title = "GPU: \(w(last?.gpu))"
-        aneItem.title = "ANE: \(w(last?.ane))"
-        ramItem.title = "RAM: \(w(last?.ram))"
         if let last {
             let s = settings
             let text = "Source: \(last.source) · smoothing \(fmt(s.tau))s · threshold ±\(fmt(s.stepAbs))W/\(Int((s.stepRel * 100).rounded()))%"

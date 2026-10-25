@@ -54,7 +54,7 @@ Your settings live in `~/.config/powerbar/config` and survive an update. See [`c
 
 ## Native app (experimental)
 
-[`app/`](app) contains a standalone menu bar app, so you no longer need SwiftBar. It shows the same number with the same smoothing, reads the same `~/.config/powerbar/config`, and still uses `macmon` as its data source. Because it uses a fixed status item width and tabular digits, the width never changes, not even by a pixel.
+[`app/`](app) contains a standalone menu bar app, so you no longer need SwiftBar. It shows the same number with the same smoothing, reads the same `~/.config/powerbar/config`, and reads `PSTR` straight from the SMC, so it does not need `macmon` either (and no sudo). The dropdown shows the total only; the CPU/GPU/ANE/RAM breakdown is plugin-only. Because it uses a fixed status item width and tabular digits, the width never changes, not even by a pixel.
 
 ```bash
 app/build.sh --install   # builds PowerBar.app, copies it to ~/Applications and starts it
