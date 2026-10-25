@@ -14,6 +14,7 @@ rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/PowerBar"
 cp "$HERE/../config.example" "$APP/Contents/Resources/config.example"
+cp "$HERE/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"  # made by make-icon.swift
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>
@@ -25,6 +26,7 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundleIdentifier</key><string>nl.michielwittkampf.powerbar</string>
   <key>CFBundleExecutable</key><string>PowerBar</string>
   <key>CFBundlePackageType</key><string>APPL</string>
+  <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
   <key>CFBundleVersion</key><string>$VERSION</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>

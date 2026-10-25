@@ -30,6 +30,7 @@ Put a fake `macmon` on the PATH that prints JSON lines with `sys_power`. Then ru
 - **Keep the two in sync:** if you change the smoothing logic in `powerbar.py`, port it and update `testMatchesPythonPlugin`. That test replays a fake macmon sequence whose expected titles come from the Python plugin.
 - Fixed width: `fixWidth()` measures the widest title (`999W` plus the bolt) once and sets that as the `length`. The font is the menu bar font with tabular digits (`monospacedDigitSystemFont`), so there is no other typeface.
 - `swift test --package-path app` runs the tests. `app/build.sh [--install]` makes `app/build/PowerBar.app`: ad-hoc signed, `LSUIElement`, `config.example` as a resource. Open at Login uses `SMAppService.mainApp`, which only works from the `.app` bundle.
+- The app icon (`app/Resources/AppIcon.icns`, committed) comes from `swift app/make-icon.swift`: the SF Symbol `bolt.fill` on a rounded square. The generic `~/.mac-maintenance/lib/make-icon.py` can't do this, because the SF fonts have no bolt glyph. The icon matters: PowerBar is a login item and must be recognisable in Login Items.
 - An app started from Finder has no Homebrew on its PATH, so `MacmonReader.candidates` lists the usual paths.
 
 ## Known limitation and possible next steps
