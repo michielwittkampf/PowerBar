@@ -1,7 +1,8 @@
 import AppKit
 import PowerBarCore
 
-/// The dropdown: live values, an info row, and the actions.
+/// The dropdown: the live readings on top, an error row when reading fails,
+/// then the Settings and Help submenus and Quit.
 final class MenuController: NSObject, NSMenuDelegate {
     let menu = NSMenu()
     var onReload: () -> Void = {}
@@ -10,30 +11,45 @@ final class MenuController: NSObject, NSMenuDelegate {
     private let smoothedItem = NSMenuItem()
     private let lastItem = NSMenuItem()
     private let peakItem = NSMenuItem()
+    private let errorItem = NSMenuItem()
     private let infoItem = NSMenuItem()
     private let loginItem = NSMenuItem(title: "Open at Login", action: #selector(toggleLogin), keyEquivalent: "")
 
     override init() {
         super.init()
         menu.delegate = self
-        for item in [smoothedItem, lastItem, peakItem, infoItem] {
+        for item in [smoothedItem, lastItem, peakItem, errorItem, infoItem] {
             item.isEnabled = false
-            menu.addItem(item)
-            if item === peakItem { menu.addItem(.separator()) }
         }
+        errorItem.isHidden = true
+        [smoothedItem, lastItem, peakItem, errorItem].forEach(menu.addItem)
         menu.addItem(.separator())
-        add("Settings…", #selector(openSettings), key: ",")
-        add("Reload Settings", #selector(reload), key: "r")
+
+        let settings = submenu("Settings")
+        add("Edit Settings…", #selector(openSettings), key: ",", to: settings)
+        add("Reload Settings", #selector(reload), key: "r", to: settings)
+        settings.addItem(.separator())
         loginItem.target = self
-        menu.addItem(loginItem)
+        settings.addItem(loginItem)
+        settings.addItem(.separator())
+        settings.addItem(infoItem)
+
+        let help = submenu("Help")
+        add("Documentation (README on GitHub)", #selector(openDocs), to: help)
+        add("About PowerBar", #selector(showAbout), to: help)
+
         menu.addItem(.separator())
-        add("Documentation (README on GitHub)", #selector(openDocs))
-        add("About PowerBar", #selector(showAbout))
         menu.addItem(withTitle: "Quit PowerBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         update(smoother: nil, last: nil, settings: Settings())
     }
 
-    private func add(_ title: String, _ action: Selector, key: String = "") {
+    private func submenu(_ title: String) -> NSMenu {
+        let sub = NSMenu(title: title)
+        menu.addItem(withTitle: title, action: nil, keyEquivalent: "").submenu = sub
+        return sub
+    }
+
+    private func add(_ title: String, _ action: Selector, key: String = "", to menu: NSMenu) {
         menu.addItem(withTitle: title, action: action, keyEquivalent: key).target = self
     }
 
@@ -41,15 +57,17 @@ final class MenuController: NSObject, NSMenuDelegate {
         smoothedItem.title = "Smoothed: \(formatWatts(smoother?.ema))"
         lastItem.title = "Last reading: \(formatWatts(last))"
         peakItem.title = "Peak since start: \(formatWatts(last == nil ? nil : smoother?.peak))"
-        if last != nil {
-            showInfo(formatInfoLine(settings: settings))
-        }
+        infoItem.attributedTitle = small(formatInfoLine(settings: settings))
     }
 
-    /// The small grey row: the source and settings, or an error.
-    func showInfo(_ text: String) {
-        infoItem.attributedTitle = NSAttributedString(
-            string: text, attributes: [.font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)])
+    /// An error stays in the main menu, not in a submenu; nil hides the row.
+    func showError(_ text: String?) {
+        errorItem.isHidden = text == nil
+        errorItem.attributedTitle = small(text.map { "Error: \($0)" } ?? "")
+    }
+
+    private func small(_ text: String) -> NSAttributedString {
+        NSAttributedString(string: text, attributes: [.font: NSFont.menuFont(ofSize: NSFont.smallSystemFontSize)])
     }
 
     func menuWillOpen(_ menu: NSMenu) {

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-- The menu item is now called *Documentation (README on GitHub)*.
+- The dropdown is shorter: the readings, then a *Settings* submenu (Edit Settings…, Reload Settings, Open at Login, the source and settings row) and a *Help* submenu (Documentation (README on GitHub), About PowerBar), then Quit. An error shows as its own row under the readings.
 - About shows the commit the app was built from, e.g. *Version 0.5.0 (e972f45)*; `CFBundleVersion` is the commit count.
 
 ## 0.5.0 — 2026-10-25

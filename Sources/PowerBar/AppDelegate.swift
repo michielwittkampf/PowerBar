@@ -29,11 +29,12 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         last = nil
         statusItem.fixWidth(digits: settings.width)
         statusItem.show(nil)  // before start(): its first reading arrives synchronously
+        menu.showError(nil)
         do {
             try reader.start(intervalMs: settings.intervalMs)
         } catch {
             statusItem.show(nil, ok: false)
-            menu.showInfo("Error: \(error.localizedDescription)")
+            menu.showError(error.localizedDescription)
             let work = DispatchWorkItem { [weak self] in self?.restart() }
             retry = work
             DispatchQueue.main.asyncAfter(deadline: .now() + 60, execute: work)

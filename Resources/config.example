@@ -1,4 +1,4 @@
-# PowerBar settings — remove the # and edit, then choose Reload Settings in the
+# PowerBar settings — remove the # and edit, then choose Settings > Reload Settings in the
 # PowerBar menu. Values out of range are ignored; see the README for the ranges.
 
 # TAU = 8            # smoothing in seconds (higher = calmer)
