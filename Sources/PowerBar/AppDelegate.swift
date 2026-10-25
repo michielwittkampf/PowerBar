@@ -1,10 +1,12 @@
 import AppKit
 import PowerBarCore
 
-/// Wires the pieces together: SMC reading → smoothing → menu bar title and dropdown.
+/// Wires the pieces together: SMC reading → smoothing → menu bar title and dropdown,
+/// restarting on wake and when the settings file changes.
 final class AppDelegate: NSObject, NSApplicationDelegate {
     private let reader = SMCReader()
     private let menu = MenuController()
+    private let configWatcher = ConfigWatcher()
     private var statusItem: StatusItemController!
     private var settings = Settings()
     private var smoother = Smoother(settings: Settings())
@@ -13,7 +15,8 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationDidFinishLaunching(_ note: Notification) {
         statusItem = StatusItemController(menu: menu.menu)
-        menu.onReload = { [weak self] in self?.restart() }
+        configWatcher.onChange = { [weak self] in self?.settingsFileChanged() }
+        configWatcher.start()
         reader.onSample = { [weak self] in self?.handle($0) }
         // Start fresh on wake: the smoothing should not average across sleep.
         NSWorkspace.shared.notificationCenter.addObserver(
@@ -21,9 +24,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         restart()
     }
 
+    /// Only a real change restarts: saving without edits, or editing a comment,
+    /// keeps the smoothing and the peak.
+    private func settingsFileChanged() {
+        if Settings.load() != settings { restart() }
+    }
+
     @objc private func restart() {
         reader.stop()
-        retry?.cancel()  // one pending retry at most; a successful reload needs none
+        retry?.cancel()  // one pending retry at most; a successful restart needs none
         settings = Settings.load()
         smoother = Smoother(settings: settings)
         last = nil

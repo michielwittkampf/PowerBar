@@ -3,6 +3,7 @@
 ## Unreleased
 
 - The dropdown is shorter: the readings, then a *Settings* submenu (Edit Settings…, Reload Settings, Open at Login, the source and settings row) and a *Help* submenu (Documentation (README on GitHub), About PowerBar), then Quit. An error shows as its own row under the readings.
+- Settings are picked up as soon as you save the file; *Reload Settings* is gone. PowerBar creates `~/.config/powerbar` at startup so it can watch it.
 - About shows the commit the app was built from, e.g. *Version 0.5.0 (e972f45)*; `CFBundleVersion` is the commit count.
 
 ## 0.5.0 — 2026-10-25

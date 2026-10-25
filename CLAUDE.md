@@ -5,7 +5,7 @@ A native macOS menu bar app that calmly shows the total system power draw of an 
 ## Layout
 - A Swift package at the repo root. `swift test` runs the tests; `scripts/build.sh [--install]` makes `build/PowerBar.app` (and with `--install` copies it to `~/Applications` and starts it).
 - `Sources/PowerBarCore` holds everything that needs neither AppKit nor IOKit, and is unit tested: `Settings` (config keys, ranges, parsing), `Smoother` (the calm number), `Format` (menu bar title, dropdown texts, the `Project` URLs) and `SMC` (the byte layout of the AppleSMC call and decoding of the value).
-- `Sources/PowerBar` is the AppKit layer, one concern per file: `AppDelegate` only wires reader → smoother → UI and restarts on wake/reload; `StatusItemController` (title, bolt, fixed width); `MenuController` (dropdown: readings, an error row that is only shown on failure, the *Settings* and *Help* submenus, Quit); `ConfigFile` (open/create the settings file); `LoginItem` (`SMAppService`); `SMCReader` (the IOKit calls).
+- `Sources/PowerBar` is the AppKit layer, one concern per file: `AppDelegate` only wires reader → smoother → UI and restarts on wake and on a settings change; `StatusItemController` (title, bolt, fixed width); `MenuController` (dropdown: readings, an error row that is only shown on failure, the *Settings* and *Help* submenus, Quit); `ConfigFile` (open/create the settings file); `ConfigWatcher` (reload when the settings file changes); `LoginItem` (`SMAppService`); `SMCReader` (the IOKit calls).
 - `Resources/` holds `AppIcon.icns` and `config.example`; `build.sh` copies both into the bundle.
 
 ## How it works
@@ -23,6 +23,7 @@ A native macOS menu bar app that calmly shows the total system power draw of an 
 ## Pitfalls
 - In `restart()`, show `?` **before** `reader.start()`: `start()` delivers its first reading synchronously, and a `show(nil)` after it wiped that number until the next large change.
 - After an SMC error, `restart()` schedules one retry after 60 s as a `DispatchWorkItem`; every `restart()` cancels the pending one, so retries don't pile up.
+- `ConfigWatcher` watches the folder `~/.config/powerbar` (editors save by renaming a new file over the old one) *and* the file (in-place writes), re-arms the file watch after each change, and debounces 0.5 s. `AppDelegate` only restarts when the parsed `Settings` differ, so a comment edit or a save without changes keeps the smoothing and peak. There is no Reload menu item; don't add one back.
 - Open at Login uses `SMAppService.mainApp`, which only works from the `.app` bundle, not from `swift run`.
 - `build.sh` signs ad hoc with the hardened runtime (`--options runtime`); SMC reading works under it. There is no Developer ID, so Gatekeeper stops a downloaded copy on first launch. Tested end to end on macOS 27 with a quarantined copy: the normal *"PowerBar" Not Opened* dialog (not "damaged"), then *Privacy & Security ▸ Open Anyway*, after which the app runs (translocated until it is moved to Applications). The README's install steps rely on that.
 - The app icon (`Resources/AppIcon.icns`, committed) comes from `swift scripts/make-icon.swift`: the SF Symbol `bolt.fill` on a rounded square, drawn through AppKit because the SF fonts have no bolt glyph. The icon matters: PowerBar is a login item and must be recognisable in Login Items.

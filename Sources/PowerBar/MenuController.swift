@@ -5,7 +5,6 @@ import PowerBarCore
 /// then the Settings and Help submenus and Quit.
 final class MenuController: NSObject, NSMenuDelegate {
     let menu = NSMenu()
-    var onReload: () -> Void = {}
 
     // Rows that change; created once, their titles are updated.
     private let smoothedItem = NSMenuItem()
@@ -27,7 +26,6 @@ final class MenuController: NSObject, NSMenuDelegate {
 
         let settings = submenu("Settings")
         add("Edit Settings…", #selector(openSettings), key: ",", to: settings)
-        add("Reload Settings", #selector(reload), key: "r", to: settings)
         settings.addItem(.separator())
         loginItem.target = self
         settings.addItem(loginItem)
@@ -75,8 +73,6 @@ final class MenuController: NSObject, NSMenuDelegate {
     }
 
     // MARK: - Actions
-
-    @objc private func reload() { onReload() }
 
     @objc private func openSettings() { ConfigFile.openInEditor() }
 

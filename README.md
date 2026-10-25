@@ -22,7 +22,7 @@ Smoothed: 11.8 W
 Last reading: 12.1 W
 Peak since start: 34.0 W
 ─────────────
-Settings  ▸   Edit Settings…  ⌘,  ·  Reload Settings  ⌘R  ·  Open at Login  ·  (source and current settings)
+Settings  ▸   Edit Settings…  ⌘,  ·  Open at Login  ·  (source and current settings)
 Help      ▸   Documentation (README on GitHub)  ·  About PowerBar
 ─────────────
 Quit PowerBar  ⌘Q
@@ -60,7 +60,7 @@ To update, `git pull` and run `scripts/build.sh --install` again.
 
 ## Settings
 
-Choose *Settings ▸ Edit Settings…* in the menu. That opens `~/.config/powerbar/config` (one `KEY = value` per line) and creates it from [`config.example`](Resources/config.example) the first time. After a change, choose *Settings ▸ Reload Settings*.
+Choose *Settings ▸ Edit Settings…* in the menu. That opens `~/.config/powerbar/config` (one `KEY = value` per line) and creates it from [`config.example`](Resources/config.example) the first time. PowerBar picks up your changes as soon as you save the file.
 
 | Setting | Default | Allowed | Meaning |
 |---|---|---|---|
@@ -77,7 +77,7 @@ Unknown keys, values that aren't plain numbers and values outside the allowed ra
 ## Security and privacy
 
 - **No network, no root.** PowerBar reads one SMC key (`PSTR`) through the `AppleSMC` IOKit service, read-only, as a normal user. It doesn't connect to the internet: only *Help ▸ Documentation* and the link in *Help ▸ About PowerBar* open this page in your browser.
-- **Files it touches:** it reads `~/.config/powerbar/config`. *Edit Settings…* creates that file from the example if it doesn't exist; an existing file is never overwritten. *Open at Login* registers the app with macOS (`SMAppService`); nothing else is installed.
+- **Files it touches:** it reads and watches `~/.config/powerbar/config`, and creates the empty folder `~/.config/powerbar` at startup if it doesn't exist. *Edit Settings…* creates that file from the example if it doesn't exist; an existing file is never overwritten. *Open at Login* registers the app with macOS (`SMAppService`); nothing else is installed.
 - **Signing:** the app is signed ad hoc, with the hardened runtime. It has no Apple Developer ID and isn't notarized, which is why macOS asks you to allow it once (see *Install*).
 
 Found a security problem? Please report it privately through [GitHub's security advisories](https://github.com/michielwittkampf/powerbar/security/advisories/new) instead of a public issue.
