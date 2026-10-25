@@ -17,10 +17,10 @@ public func formatWatts(_ watts: Double?) -> String {
     watts.map { String(format: "%.1f W", $0) } ?? "–"
 }
 
-/// The small info row in the dropdown, same text as in the plugin.
+/// The small info row in the dropdown: the source and the main settings.
 public func formatSourceLine(source: String, settings s: Settings) -> String {
     func g(_ x: Double) -> String { String(format: "%g", x) }
-    let percent = Int((s.stepRel * 100).rounded(.toNearestOrEven))  // like Python's {:.0%}
+    let percent = Int((s.stepRel * 100).rounded())
     return "Source: \(source) · smoothing \(g(s.tau))s · threshold ±\(g(s.stepAbs))W/\(percent)%"
 }
 

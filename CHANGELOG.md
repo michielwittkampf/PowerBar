@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.0 — unreleased
+
+- PowerBar is now only the native app. The SwiftBar plugin, its installer, the `powerbar` command and the Raycast script are retired; they remain available under the `v0.4.0` tag. `install.sh` now only explains this to plugin users.
+- The Swift package moved to the repo root (`swift test`, `scripts/build.sh`); `config.example` moved to `Resources/`.
+- Settings keys, ranges and parsing live in one table (`Settings.keys`).
+
 ## 0.4.0 — 2026-10-25
 
 - App: the number now shows right after launch, wake and *Reload Settings*. Before, it stayed at `?W` until the power changed a lot.

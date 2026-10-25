@@ -62,9 +62,9 @@ final class SmootherTests: XCTestCase {
         XCTAssertEqual(s.shown, 40)
     }
 
-    /// Same input as a fake macmon fed to powerbar.py, which shows 10 → 13 → 30.
+    /// A spike, an SMC glitch and a lasting jump: shows 10 → 13 → 30.
     /// The 2803 W glitch must leave no trace.
-    func testMatchesPythonPlugin() {
+    func testGlitchAndJumpScenario() {
         let settings = Settings()
         var s = Smoother(settings: settings)
         var titles: [String] = []
@@ -84,14 +84,11 @@ final class SmootherTests: XCTestCase {
         XCTAssertEqual(formatTitle(.nan, width: 3), "\u{2007}\u{2007}?W")
     }
 
-    func testMenuTextMatchesPlugin() {
+    func testMenuText() {
         XCTAssertEqual(formatWatts(12.345), "12.3 W")
         XCTAssertEqual(formatWatts(nil), "–")
         XCTAssertEqual(formatSourceLine(source: "SMC PSTR (whole system)", settings: Settings()),
                        "Source: SMC PSTR (whole system) · smoothing 8s · threshold ±1.5W/15%")
-        var s = Settings()
-        s.stepRel = 0.125  // Python's {:.0%} gives 12%
-        XCTAssertTrue(formatSourceLine(source: "x", settings: s).hasSuffix("/12%"))
     }
 }
 

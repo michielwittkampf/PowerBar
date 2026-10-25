@@ -14,12 +14,10 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Swift tests
-        run: swift test --package-path app
+        run: swift test
       - name: Build the app
-        run: app/build.sh
+        run: scripts/build.sh
       - name: Shellcheck
         run: |
           brew install shellcheck
-          shellcheck -S warning install.sh bin/powerbar raycast/*.sh app/build.sh
-      - name: Plugin syntax
-        run: /usr/bin/python3 -m py_compile powerbar.py
+          shellcheck -S warning install.sh scripts/build.sh

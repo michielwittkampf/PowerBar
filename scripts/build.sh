@@ -1,20 +1,20 @@
 #!/bin/bash
 # Build PowerBar.app from the Swift package (release build, ad-hoc signed).
-# Usage: app/build.sh [--install]   (--install copies it to ~/Applications and opens it)
+# Usage: scripts/build.sh [--install]   (--install copies it to ~/Applications and opens it)
 set -euo pipefail
 
-HERE="$(cd "$(dirname "$0")" && pwd)"
-VERSION="0.4.0"
-APP="$HERE/build/PowerBar.app"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+VERSION="0.5.0"
+APP="$ROOT/build/PowerBar.app"
 
-swift build --package-path "$HERE" -c release
-BIN="$(swift build --package-path "$HERE" -c release --show-bin-path)/PowerBar"
+swift build --package-path "$ROOT" -c release
+BIN="$(swift build --package-path "$ROOT" -c release --show-bin-path)/PowerBar"
 
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/PowerBar"
-cp "$HERE/../config.example" "$APP/Contents/Resources/config.example"
-cp "$HERE/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"  # made by make-icon.swift
+cp "$ROOT/Resources/config.example" "$APP/Contents/Resources/config.example"
+cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"  # made by make-icon.swift
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>

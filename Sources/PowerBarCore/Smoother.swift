@@ -1,6 +1,6 @@
 import Foundation
 
-/// The calm-but-alert number, ported 1:1 from the plugin:
+/// The calm-but-alert number:
 /// - the reading is smoothed with an EMA (time constant `tau`);
 /// - the shown number only changes at `max(stepAbs, stepRel * shown)`;
 /// - a large jump that persists `jumpN` samples is shown immediately;

@@ -1,7 +1,6 @@
 import Foundation
 
-/// User settings. Same keys, defaults and limits as the SwiftBar plugin, read from
-/// the same file (`~/.config/powerbar/config`, one `KEY=value` per line).
+/// User settings, read from `~/.config/powerbar/config` (one `KEY = value` per line).
 public struct Settings: Equatable {
     public var intervalMs = 1000   // sampling interval
     public var tau = 8.0           // smoothing in seconds (higher = calmer)
@@ -22,19 +21,25 @@ public struct Settings: Equatable {
     public static let path = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".config/powerbar/config")
 
-    /// The accepted range per key. A value outside it is ignored (the default
-    /// stays), so a typo can't stall the timer, divide by zero or overflow.
-    /// Keep in sync with `LIMITS` in powerbar.py.
-    public static let limits: [String: ClosedRange<Double>] = [
-        "INTERVAL_MS": 100...60_000,
-        "TAU": 0.1...3600,
-        "STEP_ABS": 0...1000,
-        "STEP_REL": 0...10,
-        "JUMP_ABS": 0...1000,
-        "JUMP_REL": 0...10,
-        "JUMP_N": 1...600,
-        "WIDTH": 1...6,
-        "MAX_W": 1...100_000,
+    /// A config key: the accepted range and where the value goes.
+    public struct Key {
+        public let range: ClosedRange<Double>
+        let apply: (inout Settings, Double) -> Void
+    }
+
+    /// Every key the config file understands. A value outside its range is
+    /// ignored (the default stays), so a typo can't stall the timer, divide by
+    /// zero or overflow `Int(_:)`. The README's settings table mirrors this.
+    public static let keys: [String: Key] = [
+        "INTERVAL_MS": Key(range: 100...60_000) { $0.intervalMs = Int($1) },
+        "TAU": Key(range: 0.1...3600) { $0.tau = $1 },
+        "STEP_ABS": Key(range: 0...1000) { $0.stepAbs = $1 },
+        "STEP_REL": Key(range: 0...10) { $0.stepRel = $1 },
+        "JUMP_ABS": Key(range: 0...1000) { $0.jumpAbs = $1 },
+        "JUMP_REL": Key(range: 0...10) { $0.jumpRel = $1 },
+        "JUMP_N": Key(range: 1...600) { $0.jumpN = Int($1) },
+        "WIDTH": Key(range: 1...6) { $0.width = Int($1) },
+        "MAX_W": Key(range: 1...100_000) { $0.maxW = $1 },
     ]
 
     public static func load(from url: URL = path) -> Settings {
@@ -42,30 +47,18 @@ public struct Settings: Equatable {
         return parse(text)
     }
 
-    /// Unknown keys, unparsable values and values out of range are ignored, like in the plugin.
+    /// Unknown keys, values that aren't plain decimal numbers and values out of
+    /// range are ignored.
     public static func parse(_ text: String) -> Settings {
         var s = Settings()
         for rawLine in text.split(whereSeparator: \.isNewline) {
             let line = rawLine.split(separator: "#", maxSplits: 1, omittingEmptySubsequences: false)[0]
             let parts = line.split(separator: "=", maxSplits: 1)
-            guard parts.count == 2 else { continue }
-            let key = parts[0].trimmingCharacters(in: .whitespaces)
+            guard parts.count == 2, let key = keys[parts[0].trimmingCharacters(in: .whitespaces)] else { continue }
             let value = parts[1].trimmingCharacters(in: .whitespaces)
             guard value.allSatisfy({ "0123456789.+-eE".contains($0) }),  // decimal only, no hex
-                  let v = Double(value),
-                  let range = limits[key], range.contains(v) else { continue }
-            switch key {
-            case "INTERVAL_MS": s.intervalMs = Int(v)
-            case "TAU": s.tau = v
-            case "STEP_ABS": s.stepAbs = v
-            case "STEP_REL": s.stepRel = v
-            case "JUMP_ABS": s.jumpAbs = v
-            case "JUMP_REL": s.jumpRel = v
-            case "JUMP_N": s.jumpN = Int(v)
-            case "WIDTH": s.width = Int(v)
-            case "MAX_W": s.maxW = v
-            default: break
-            }
+                  let v = Double(value), key.range.contains(v) else { continue }
+            key.apply(&s, v)
         }
         return s
     }

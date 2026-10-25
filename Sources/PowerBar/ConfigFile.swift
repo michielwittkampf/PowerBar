@@ -1,7 +1,7 @@
 import AppKit
 import PowerBarCore
 
-/// The settings file `~/.config/powerbar/config`, shared with the SwiftBar plugin.
+/// The settings file `~/.config/powerbar/config`.
 enum ConfigFile {
     /// Opens the file in TextEdit, first creating it from the bundled
     /// `config.example` if it doesn't exist yet. An existing file is never touched.
