@@ -4,7 +4,7 @@
 set -euo pipefail
 
 HERE="$(cd "$(dirname "$0")" && pwd)"
-VERSION="0.1.0"
+VERSION="0.3.0"
 APP="$HERE/build/PowerBar.app"
 
 swift build --package-path "$HERE" -c release
