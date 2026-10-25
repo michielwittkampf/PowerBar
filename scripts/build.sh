@@ -19,8 +19,8 @@ BIN="$(swift build --package-path "$ROOT" -c release --show-bin-path)/PowerBar"
 rm -rf "$APP"
 mkdir -p "$APP/Contents/MacOS" "$APP/Contents/Resources"
 cp "$BIN" "$APP/Contents/MacOS/PowerBar"
-cp "$ROOT/Resources/config.example" "$APP/Contents/Resources/config.example"
-cp "$ROOT/Resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"  # made by make-icon.swift
+cp "$ROOT/resources/config.example" "$APP/Contents/Resources/config.example"
+cp "$ROOT/resources/AppIcon.icns" "$APP/Contents/Resources/AppIcon.icns"  # made by make-icon.swift
 
 cat > "$APP/Contents/Info.plist" <<EOF
 <?xml version="1.0" encoding="UTF-8"?>

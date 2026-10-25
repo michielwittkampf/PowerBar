@@ -1,11 +1,11 @@
-// Generates Resources/AppIcon.icns: the SF Symbol bolt.fill (the same bolt
+// Generates resources/AppIcon.icns: the SF Symbol bolt.fill (the same bolt
 // as in the menu bar) on a rounded square. It draws the symbol through AppKit,
 // because the SF fonts have no bolt character to draw as text.
 // Usage: swift scripts/make-icon.swift   (output is committed; rerun only to change it)
 import AppKit
 
 let root = URL(fileURLWithPath: #filePath).deletingLastPathComponent().deletingLastPathComponent()
-let out = root.appendingPathComponent("Resources/AppIcon.icns")
+let out = root.appendingPathComponent("resources/AppIcon.icns")
 let color = NSColor(srgbRed: 0xF5 / 255, green: 0xA6 / 255, blue: 0x23 / 255, alpha: 1)
 
 func master(_ size: CGFloat) -> NSBitmapImageRep {

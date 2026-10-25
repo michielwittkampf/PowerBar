@@ -44,7 +44,7 @@ To update, `git pull` and run `scripts/build.sh --install` again.
 
 ## Settings
 
-Choose *Settings ▸ Edit Settings…* in the menu. That opens `~/.config/powerbar/config` (one `KEY = value` per line) and creates it from [`config.example`](Resources/config.example) the first time. PowerBar picks up your changes as soon as you save the file.
+Choose *Settings ▸ Edit Settings…* in the menu. That opens `~/.config/powerbar/config` (one `KEY = value` per line) and creates it from [`config.example`](resources/config.example) the first time. PowerBar picks up your changes as soon as you save the file.
 
 | Setting | Default | Allowed | Meaning |
 |---|---|---|---|
@@ -72,7 +72,7 @@ Found a security problem? Please report it privately through [GitHub's security 
 ```bash
 swift test                 # unit tests for the logic (no SMC access needed)
 scripts/build.sh           # build/PowerBar.app
-swift scripts/make-icon.swift   # regenerate Resources/AppIcon.icns (committed)
+swift scripts/make-icon.swift   # regenerate resources/AppIcon.icns (committed)
 ```
 
 `Sources/PowerBarCore` holds the logic: settings, smoothing, formatting and the SMC byte layout. It has no AppKit and is unit tested. `Sources/PowerBar` is the AppKit layer, one concern per file. [`CLAUDE.md`](CLAUDE.md) has the design notes and pitfalls; [`CHANGELOG.md`](CHANGELOG.md) lists the changes.
