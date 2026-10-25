@@ -36,10 +36,6 @@ Then choose *Open at Login* in the PowerBar menu if you want it to start with yo
 
 There is no ready-made download: an app without a paid, notarized Apple Developer ID signature is blocked by Gatekeeper.
 
-### Coming from the SwiftBar plugin?
-
-Up to version 0.4.0, PowerBar was also a [SwiftBar](https://github.com/swiftbar/SwiftBar) plugin that used [macmon](https://github.com/vladkens/macmon). That plugin is retired. Run `powerbar uninstall` to remove it; your settings file is shared, so it carries over. `brew uninstall macmon` and `brew uninstall --cask swiftbar` remove the tools it used, if nothing else needs them. The plugin's last version is still available under the [v0.4.0 tag](https://github.com/michielwittkampf/powerbar/tree/v0.4.0).
-
 ## Settings
 
 Choose *Settings…* in the menu. That opens `~/.config/powerbar/config` (one `KEY = value` per line) and creates it from [`config.example`](Resources/config.example) the first time. After a change, choose *Reload Settings*.

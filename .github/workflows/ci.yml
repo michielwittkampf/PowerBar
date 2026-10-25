@@ -20,4 +20,4 @@ jobs:
       - name: Shellcheck
         run: |
           brew install shellcheck
-          shellcheck -S warning install.sh scripts/build.sh
+          shellcheck -S warning scripts/build.sh

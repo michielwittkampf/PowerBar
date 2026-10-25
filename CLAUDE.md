@@ -7,7 +7,6 @@ A native macOS menu bar app that calmly shows the total system power draw of an 
 - `Sources/PowerBarCore` holds everything that needs neither AppKit nor IOKit, and is unit tested: `Settings` (config keys, ranges, parsing), `Smoother` (the calm number), `Format` (menu bar title, dropdown texts, the `Project` URLs) and `SMC` (the byte layout of the AppleSMC call and decoding of the value).
 - `Sources/PowerBar` is the AppKit layer, one concern per file: `AppDelegate` only wires reader → smoother → UI and restarts on wake/reload; `StatusItemController` (title, bolt, fixed width); `MenuController` (dropdown rows and actions); `ConfigFile` (open/create the settings file); `LoginItem` (`SMAppService`); `SMCReader` (the IOKit calls).
 - `Resources/` holds `AppIcon.icns` and `config.example`; `build.sh` copies both into the bundle.
-- `install.sh` is only a stub: the SwiftBar plugin (up to tag `v0.4.0`) ran `powerbar update` as `curl …/main/install.sh | bash`, and the stub tells those users the plugin is retired. Keep it.
 
 ## How it works
 - **No helper tools, no root.** `SMCReader` reads the SMC key `PSTR` through the `AppleSMC` user client (`IOConnectCallStructMethod`, selector 2: key info = 9, read = 5), as a normal user, once per `INTERVAL_MS`. On Apple Silicon `PSTR` is `flt `: a little-endian float32. Verified on an M5 Pro / macOS 27: identical to macmon's `sys_power` and Stats' "System Total".
