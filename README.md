@@ -28,7 +28,7 @@ Choose *Settings ▸ Open at Login* in the PowerBar menu if you want it to start
 - **Update:** download the new release and replace the app. Your settings stay.
 - **Remove:** turn off *Settings ▸ Open at Login*, quit PowerBar, then delete PowerBar from Applications (and `~/.config/powerbar` if you want your settings gone).
 
-*Is the download really built from this code?* See [Security and privacy](#security-and-privacy).
+*Is the download really built from this code?* See [Security and privacy](#security-and-privacy) if you want to check it.
 
 ### Build it yourself
 
