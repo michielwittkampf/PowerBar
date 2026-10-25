@@ -70,6 +70,7 @@ final class MenuController: NSObject, NSMenuDelegate {
         NSApp.activate(ignoringOtherApps: true)  // a menu bar app is never frontmost by itself
         let credits = NSMutableAttributedString(string: "Documentation on GitHub")
         credits.addAttribute(.link, value: Project.docs, range: NSRange(location: 0, length: credits.length))
-        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits])
+        // An empty build version drops the "(0.5.0)" macOS would add after "Version 0.5.0".
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits, .version: ""])
     }
 }
