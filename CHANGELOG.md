@@ -1,10 +1,11 @@
 # Changelog
 
-## 0.5.0 — unreleased
+## 0.5.0 — 2026-10-25
 
 - PowerBar is now only the native app. The SwiftBar plugin, its installer, the `powerbar` command and the Raycast script are removed; the last version is under the `v0.4.0` tag.
 - The Swift package moved to the repo root (`swift test`, `scripts/build.sh`); `config.example` moved to `Resources/`.
 - Every release has a ready-made `PowerBar.zip`, built by GitHub Actions from the tag, with checksum and build provenance.
+- About shows the version once, without the build number in parentheses.
 - Settings keys, ranges and parsing live in one table (`Settings.keys`); the `Sample` type from the multi-source days is gone.
 
 ## 0.4.0 — 2026-10-25

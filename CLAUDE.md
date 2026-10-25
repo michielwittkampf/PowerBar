@@ -24,7 +24,7 @@ A native macOS menu bar app that calmly shows the total system power draw of an 
 - In `restart()`, show `?` **before** `reader.start()`: `start()` delivers its first reading synchronously, and a `show(nil)` after it wiped that number until the next large change.
 - After an SMC error, `restart()` schedules one retry after 60 s as a `DispatchWorkItem`; every `restart()` cancels the pending one, so retries don't pile up.
 - Open at Login uses `SMAppService.mainApp`, which only works from the `.app` bundle, not from `swift run`.
-- `build.sh` signs ad hoc with the hardened runtime (`--options runtime`); SMC reading works under it. There is no Developer ID, so Gatekeeper stops a downloaded copy on first launch. Tested on macOS 27 with a quarantined copy: it shows the normal *"PowerBar" Not Opened* dialog (not "damaged"), so *Privacy & Security ▸ Open Anyway* works; the README's install steps rely on that.
+- `build.sh` signs ad hoc with the hardened runtime (`--options runtime`); SMC reading works under it. There is no Developer ID, so Gatekeeper stops a downloaded copy on first launch. Tested end to end on macOS 27 with a quarantined copy: the normal *"PowerBar" Not Opened* dialog (not "damaged"), then *Privacy & Security ▸ Open Anyway*, after which the app runs (translocated until it is moved to Applications). The README's install steps rely on that.
 - The app icon (`Resources/AppIcon.icns`, committed) comes from `swift scripts/make-icon.swift`: the SF Symbol `bolt.fill` on a rounded square, drawn through AppKit because the SF fonts have no bolt glyph. The icon matters: PowerBar is a login item and must be recognisable in Login Items.
 
 ## Releases and CI
