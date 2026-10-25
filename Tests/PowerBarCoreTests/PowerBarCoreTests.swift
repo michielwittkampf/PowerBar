@@ -87,7 +87,7 @@ final class SmootherTests: XCTestCase {
     func testMenuText() {
         XCTAssertEqual(formatWatts(12.345), "12.3 W")
         XCTAssertEqual(formatWatts(nil), "–")
-        XCTAssertEqual(formatSourceLine(source: "SMC PSTR (whole system)", settings: Settings()),
+        XCTAssertEqual(formatInfoLine(settings: Settings()),
                        "Source: SMC PSTR (whole system) · smoothing 8s · threshold ±1.5W/15%")
     }
 }

@@ -4,7 +4,7 @@ A native macOS menu bar app that calmly shows the total system power draw of an 
 
 ## Layout
 - A Swift package at the repo root. `swift test` runs the tests; `scripts/build.sh [--install]` makes `build/PowerBar.app` (and with `--install` copies it to `~/Applications` and starts it).
-- `Sources/PowerBarCore` holds everything that needs neither AppKit nor IOKit, and is unit tested: `Settings` (config keys, ranges, parsing), `Sample`, `Smoother` (the calm number), `Format` (menu bar title, dropdown texts, the `Project` URLs) and `SMC` (the byte layout of the AppleSMC call and decoding of the value).
+- `Sources/PowerBarCore` holds everything that needs neither AppKit nor IOKit, and is unit tested: `Settings` (config keys, ranges, parsing), `Smoother` (the calm number), `Format` (menu bar title, dropdown texts, the `Project` URLs) and `SMC` (the byte layout of the AppleSMC call and decoding of the value).
 - `Sources/PowerBar` is the AppKit layer, one concern per file: `AppDelegate` only wires reader → smoother → UI and restarts on wake/reload; `StatusItemController` (title, bolt, fixed width); `MenuController` (dropdown rows and actions); `ConfigFile` (open/create the settings file); `LoginItem` (`SMAppService`); `SMCReader` (the IOKit calls).
 - `Resources/` holds `AppIcon.icns` and `config.example`; `build.sh` copies both into the bundle.
 - `install.sh` is only a stub: the SwiftBar plugin (up to tag `v0.4.0`) ran `powerbar update` as `curl …/main/install.sh | bash`, and the stub tells those users the plugin is retired. Keep it.

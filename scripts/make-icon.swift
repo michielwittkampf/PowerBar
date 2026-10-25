@@ -16,7 +16,7 @@ func master(_ size: CGFloat) -> NSBitmapImageRep {
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.current = NSGraphicsContext(bitmapImageRep: rep)
 
-    // ~22% corner radius with a small inset, as in make-icon.py
+    // ~22% corner radius with a small inset, like macOS app icons
     let inset = size * 0.06
     let rect = NSRect(x: inset, y: inset, width: size - 2 * inset, height: size - 2 * inset)
     let square = NSBezierPath(roundedRect: rect, xRadius: size * 0.22, yRadius: size * 0.22)

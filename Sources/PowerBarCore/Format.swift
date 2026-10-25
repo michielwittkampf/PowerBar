@@ -18,13 +18,13 @@ public func formatWatts(_ watts: Double?) -> String {
 }
 
 /// The small info row in the dropdown: the source and the main settings.
-public func formatSourceLine(source: String, settings s: Settings) -> String {
+public func formatInfoLine(settings s: Settings) -> String {
     func g(_ x: Double) -> String { String(format: "%g", x) }
     let percent = Int((s.stepRel * 100).rounded())
-    return "Source: \(source) · smoothing \(g(s.tau))s · threshold ±\(g(s.stepAbs))W/\(percent)%"
+    return "Source: SMC PSTR (whole system) · smoothing \(g(s.tau))s · threshold ±\(g(s.stepAbs))W/\(percent)%"
 }
 
-/// Where the documentation and the issue tracker live.
+/// Where the documentation lives.
 public enum Project {
     public static let docs = URL(string: "https://github.com/michielwittkampf/powerbar#readme")!
 }

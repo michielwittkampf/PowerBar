@@ -10,7 +10,7 @@ PowerBar shows your **Mac's total power draw** in the menu bar, calmly, without 
  7W ⚡
 ```
 
-- **Calm:** the value is sampled every second and smoothed over about 8 seconds. The number only changes at a difference of at least 1.5 W or 15%.
+- **Calm:** the value is sampled every second and smoothed over about 8 seconds. The number only changes once the difference is at least 1.5 W and at least 15%.
 - **Still alert:** a large jump (≥ 5 W and ≥ 50%) that persists for 3 seconds is shown immediately.
 - **Fixed width:** the number uses tabular digits in a fixed-width slot, so the icons to its left never shift. The bolt sits to the right of the number.
 - **Source:** the SMC key `PSTR` (total system power). This is the same value as "System Total" in [Stats](https://github.com/exelban/stats). PowerBar reads it directly, with no helper tools and no sudo.

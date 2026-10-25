@@ -4,7 +4,7 @@
 
 - PowerBar is now only the native app. The SwiftBar plugin, its installer, the `powerbar` command and the Raycast script are retired; they remain available under the `v0.4.0` tag. `install.sh` now only explains this to plugin users.
 - The Swift package moved to the repo root (`swift test`, `scripts/build.sh`); `config.example` moved to `Resources/`.
-- Settings keys, ranges and parsing live in one table (`Settings.keys`).
+- Settings keys, ranges and parsing live in one table (`Settings.keys`); the `Sample` type from the multi-source days is gone.
 
 ## 0.4.0 — 2026-10-25
 

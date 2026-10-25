@@ -37,12 +37,12 @@ final class MenuController: NSObject, NSMenuDelegate {
         menu.addItem(withTitle: title, action: action, keyEquivalent: key).target = self
     }
 
-    func update(smoother: Smoother?, last: Sample?, settings: Settings) {
+    func update(smoother: Smoother?, last: Double?, settings: Settings) {
         smoothedItem.title = "Smoothed: \(formatWatts(smoother?.ema))"
-        lastItem.title = "Last reading: \(formatWatts(last?.power))"
+        lastItem.title = "Last reading: \(formatWatts(last))"
         peakItem.title = "Peak since start: \(formatWatts(last == nil ? nil : smoother?.peak))"
-        if let last {
-            showInfo(formatSourceLine(source: last.source, settings: settings))
+        if last != nil {
+            showInfo(formatInfoLine(settings: settings))
         }
     }
 

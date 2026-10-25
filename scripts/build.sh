@@ -36,8 +36,8 @@ cat > "$APP/Contents/Info.plist" <<EOF
 </plist>
 EOF
 
-# Ad-hoc signature with the hardened runtime: no Developer ID, so Gatekeeper
-# still asks on first launch of a downloaded copy (see README).
+# Ad-hoc signature with the hardened runtime. There is no Developer ID, so
+# Gatekeeper stops a downloaded copy on first launch (see README).
 codesign --force --options runtime --sign - "$APP"
 echo "Built $APP"
 

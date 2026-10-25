@@ -3,10 +3,9 @@ import IOKit
 import PowerBarCore
 
 /// Reads the SMC key `PSTR` (total system power) straight from the AppleSMC
-/// user client, without root, and hands a `Sample` to `onSample` every interval.
+/// user client, without root, and hands the value in watts to `onSample` every interval.
 final class SMCReader {
     static let key = "PSTR"
-    static let source = "SMC PSTR (whole system)"
 
     enum Failure: LocalizedError {
         case noService, open(kern_return_t), call(kern_return_t), smc(key: String, result: UInt8), type(String)
@@ -21,7 +20,7 @@ final class SMCReader {
         }
     }
 
-    var onSample: (Sample) -> Void = { _ in }
+    var onSample: (Double) -> Void = { _ in }
     private var connection: io_connect_t = 0
     private var size: UInt32 = 0
     private var type = ""
@@ -66,7 +65,7 @@ final class SMCReader {
     private func tick() {
         guard let out = try? call(SMC.request(key: Self.key, command: SMC.cmdReadBytes, dataSize: size)),
               let watts = SMC.decode(type: type, bytes: SMC.bytes(out, size: size)) else { return }
-        onSample(Sample(power: watts, source: Self.source))
+        onSample(watts)
     }
 
     private func call(_ input: [UInt8]) throws -> [UInt8] {

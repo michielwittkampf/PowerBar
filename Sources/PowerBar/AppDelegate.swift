@@ -8,7 +8,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var statusItem: StatusItemController!
     private var settings = Settings()
     private var smoother = Smoother(settings: Settings())
-    private var last: Sample?
+    private var last: Double?  // last plausible reading in W
     private var retry: DispatchWorkItem?
 
     func applicationDidFinishLaunching(_ note: Notification) {
@@ -41,10 +41,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         menu.update(smoother: smoother, last: last, settings: settings)
     }
 
-    private func handle(_ sample: Sample) {
-        guard settings.isPlausible(sample.power) else { return }
-        last = sample
-        if smoother.add(sample.power) {
+    private func handle(_ watts: Double) {
+        guard settings.isPlausible(watts) else { return }
+        last = watts
+        if smoother.add(watts) {
             statusItem.show(smoother.shown)
         }
         menu.update(smoother: smoother, last: last, settings: settings)
