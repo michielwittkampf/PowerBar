@@ -7,6 +7,12 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 VERSION="0.5.0"
 APP="$ROOT/build/PowerBar.app"
 
+# Build identity. CFBundleVersion must be numeric, so it gets the commit count;
+# About shows the short commit hash (+ when built with uncommitted changes).
+BUILD="$(git -C "$ROOT" rev-list --count HEAD 2>/dev/null || echo 0)"
+COMMIT="$(git -C "$ROOT" rev-parse --short=7 HEAD 2>/dev/null || echo unknown)"
+git -C "$ROOT" diff --quiet HEAD 2>/dev/null || COMMIT="$COMMIT+"
+
 swift build --package-path "$ROOT" -c release
 BIN="$(swift build --package-path "$ROOT" -c release --show-bin-path)/PowerBar"
 
@@ -28,7 +34,8 @@ cat > "$APP/Contents/Info.plist" <<EOF
   <key>CFBundlePackageType</key><string>APPL</string>
   <key>CFBundleIconFile</key><string>AppIcon</string>
   <key>CFBundleShortVersionString</key><string>$VERSION</string>
-  <key>CFBundleVersion</key><string>$VERSION</string>
+  <key>CFBundleVersion</key><string>$BUILD</string>
+  <key>PowerBarCommit</key><string>$COMMIT</string>
   <key>LSMinimumSystemVersion</key><string>13.0</string>
   <key>LSUIElement</key><true/>
   <key>NSHumanReadableCopyright</key><string>© Michiel Wittkampf · MIT License</string>
@@ -39,7 +46,7 @@ EOF
 # Ad-hoc signature with the hardened runtime. There is no Developer ID, so
 # Gatekeeper stops a downloaded copy on first launch (see README).
 codesign --force --options runtime --sign - "$APP"
-echo "Built $APP"
+echo "Built $APP ($VERSION, build $BUILD, $COMMIT)"
 
 if [ "${1:-}" = "--install" ]; then
   pkill -x PowerBar 2>/dev/null || true

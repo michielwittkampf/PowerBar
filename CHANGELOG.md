@@ -3,6 +3,7 @@
 ## Unreleased
 
 - The menu item is now called *Documentation (README on GitHub)*.
+- About shows the commit the app was built from, e.g. *Version 0.5.0 (e972f45)*; `CFBundleVersion` is the commit count.
 
 ## 0.5.0 — 2026-10-25
 

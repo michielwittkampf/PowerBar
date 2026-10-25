@@ -70,7 +70,8 @@ final class MenuController: NSObject, NSMenuDelegate {
         NSApp.activate(ignoringOtherApps: true)  // a menu bar app is never frontmost by itself
         let credits = NSMutableAttributedString(string: "Documentation on GitHub")
         credits.addAttribute(.link, value: Project.docs, range: NSRange(location: 0, length: credits.length))
-        // An empty build version drops the "(0.5.0)" macOS would add after "Version 0.5.0".
-        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits, .version: ""])
+        // "Version 0.5.0 (e972f45)": the commit the app was built from, set by build.sh.
+        let commit = Bundle.main.object(forInfoDictionaryKey: "PowerBarCommit") as? String ?? ""
+        NSApp.orderFrontStandardAboutPanel(options: [.credits: credits, .version: commit])
     }
 }
