@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- The menu item is now called *Documentation (README on GitHub)*.
+
 ## 0.5.0 — 2026-10-25
 
 - PowerBar is now only the native app. The SwiftBar plugin, its installer, the `powerbar` command and the Raycast script are removed; the last version is under the `v0.4.0` tag.

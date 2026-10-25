@@ -27,7 +27,7 @@ final class MenuController: NSObject, NSMenuDelegate {
         loginItem.target = self
         menu.addItem(loginItem)
         menu.addItem(.separator())
-        add("Documentation", #selector(openDocs))
+        add("Documentation (README on GitHub)", #selector(openDocs))
         add("About PowerBar", #selector(showAbout))
         menu.addItem(withTitle: "Quit PowerBar", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q")
         update(smoother: nil, last: nil, settings: Settings())

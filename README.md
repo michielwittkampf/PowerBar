@@ -15,7 +15,7 @@ PowerBar shows your **Mac's total power draw** in the menu bar, calmly, without 
 - **Fixed width:** the number uses tabular digits in a fixed-width slot, so the icons to its left never shift. The bolt sits to the right of the number.
 - **Source:** the SMC key `PSTR` (total system power). This is the same value as "System Total" in [Stats](https://github.com/exelban/stats). PowerBar reads it directly, with no helper tools and no sudo.
 
-The dropdown shows the smoothed value, the last reading and the peak since start, plus *Settings…*, *Reload Settings*, *Open at Login*, *Documentation*, *About* and *Quit*.
+The dropdown shows the smoothed value, the last reading and the peak since start, plus *Settings…*, *Reload Settings*, *Open at Login*, *Documentation (README on GitHub)*, *About* and *Quit*.
 
 Works on Apple Silicon Macs (M1 and later) with macOS 13 or later.
 
