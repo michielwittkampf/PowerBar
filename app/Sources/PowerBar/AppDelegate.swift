@@ -65,7 +65,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, NSMenuDelegate {
     }
 
     private func handle(_ line: Data) {
-        guard let sample = Sample(json: line) else { return }
+        guard let sample = Sample(json: line), settings.isPlausible(sample.power) else { return }
         last = sample
         if smoother.add(sample.power) {
             setTitle(smoother.shown, symbol: "bolt.fill")

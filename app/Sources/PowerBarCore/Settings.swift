@@ -11,8 +11,13 @@ public struct Settings: Equatable {
     public var jumpRel = 0.5       // ...and as a fraction of the displayed value
     public var jumpN = 3           // number of consecutive samples the jump must persist
     public var width = 3           // digit slots in the menu bar; 3 = up to 999 W
+    public var maxW = 500.0        // readings above this are SMC glitches and are ignored
 
     public init() {}
+
+    /// PSTR now and then gives a bogus value (thousands of W); such a reading
+    /// must not reach the smoothing, the peak or the jump detection.
+    public func isPlausible(_ watts: Double) -> Bool { watts > 0 && watts <= maxW }
 
     public static let path = FileManager.default.homeDirectoryForCurrentUser
         .appendingPathComponent(".config/powerbar/config")
@@ -40,6 +45,7 @@ public struct Settings: Equatable {
             case "JUMP_REL": s.jumpRel = v
             case "JUMP_N": s.jumpN = Int(v)
             case "WIDTH": s.width = Int(v)
+            case "MAX_W": s.maxW = v
             default: break
             }
         }

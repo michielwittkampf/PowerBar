@@ -39,6 +39,7 @@ JUMP_REL = 0.5     # ...and as a fraction of the displayed value
 JUMP_N = 3         # number of consecutive samples the jump must persist
 MENU_REFRESH = 5     # refresh dropdown details every N seconds
 WIDTH = 3          # digit slots in the menu bar; 3 = up to 999 W
+MAX_W = 500.0      # readings above this are SMC glitches and are ignored
 # ---------------------------------------------------------------------------
 # Put your own values in ~/.config/powerbar/config (one KEY=value per line)
 # so they survive an update.
@@ -153,7 +154,7 @@ def run():
             raw, source, d = get_power(json.loads(line))
         except (ValueError, TypeError):
             continue
-        if raw <= 0:
+        if raw <= 0 or raw > MAX_W:  # PSTR now and then gives a bogus value (thousands of W)
             continue
 
         peak = max(peak, raw)

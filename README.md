@@ -48,6 +48,7 @@ Your settings live in `~/.config/powerbar/config` and survive an update. See [`c
 | `JUMP_ABS` / `JUMP_REL` / `JUMP_N` | 5 / 0.5 / 3 | what counts as a large jump that is shown immediately |
 | `INTERVAL_MS` | 1000 | sampling interval |
 | `WIDTH` | 3 | reserved digit slots |
+| `MAX_W` | 500 | readings above this are ignored. The SMC now and then reports a bogus value of thousands of watts, while no Apple Silicon Mac really draws more than about 300 W. |
 
 > Upgrading from an earlier version? The settings were renamed (`STAP_*` → `STEP_*`, `SPRONG_*` → `JUMP_*`, `BREEDTE` → `WIDTH`); update your config file if you had customised them.
 

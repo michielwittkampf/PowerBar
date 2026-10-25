@@ -16,6 +16,15 @@ final class SettingsTests: XCTestCase {
         XCTAssertEqual(s.width, 2)
         XCTAssertEqual(s.stepAbs, Settings().stepAbs)
     }
+
+    func testMaxWRejectsGlitches() {
+        let s = Settings()
+        XCTAssertTrue(s.isPlausible(34.1))
+        XCTAssertTrue(s.isPlausible(500))
+        XCTAssertFalse(s.isPlausible(2803.1))
+        XCTAssertFalse(s.isPlausible(0))
+        XCTAssertFalse(Settings.parse("MAX_W = 200").isPlausible(250))
+    }
 }
 
 final class SampleTests: XCTestCase {
@@ -55,13 +64,17 @@ final class SmootherTests: XCTestCase {
     }
 
     /// Same input as a fake macmon fed to powerbar.py, which shows 10 → 13 → 30.
+    /// The 2803 W glitch must leave no trace.
     func testMatchesPythonPlugin() {
-        var s = Smoother(settings: Settings())
+        let settings = Settings()
+        var s = Smoother(settings: settings)
         var titles: [String] = []
-        for x in [10.0, 40, 10, 10, 10, 12, 30, 30, 30, 30, 31, 29, 30] where s.add(x) {
+        let input = [10.0, 40, 10, 2803, 10, 10, 12, 30, 30, 30, 30, 31, 29, 30]
+        for x in input where settings.isPlausible(x) && s.add(x) {
             titles.append(formatTitle(s.shown, width: 3))
         }
         XCTAssertEqual(titles, ["\u{2007}10W", "\u{2007}13W", "\u{2007}30W"])
+        XCTAssertEqual(s.peak, 40)
     }
 
     func testFormatTitlePadsWithFigureSpaces() {

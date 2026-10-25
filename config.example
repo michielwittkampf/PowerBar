@@ -8,3 +8,4 @@
 # JUMP_N = 3         # ...and persists for this many seconds
 # INTERVAL_MS = 1000 # sampling interval in milliseconds
 # WIDTH = 3          # digit slots in the menu bar (3 = up to 999 W)
+# MAX_W = 500        # readings above this many watts are glitches and are ignored
