@@ -24,12 +24,12 @@ A native macOS menu bar app that calmly shows the total system power draw of an 
 - In `restart()`, show `?` **before** `reader.start()`: `start()` delivers its first reading synchronously, and a `show(nil)` after it wiped that number until the next large change.
 - After an SMC error, `restart()` schedules one retry after 60 s as a `DispatchWorkItem`; every `restart()` cancels the pending one, so retries don't pile up.
 - Open at Login uses `SMAppService.mainApp`, which only works from the `.app` bundle, not from `swift run`.
-- `build.sh` signs ad hoc with the hardened runtime (`--options runtime`); SMC reading works under it. There is no Developer ID, so a downloaded copy would be blocked by Gatekeeper; that's why there is no prebuilt download.
+- `build.sh` signs ad hoc with the hardened runtime (`--options runtime`); SMC reading works under it. There is no Developer ID, so Gatekeeper stops a downloaded copy on first launch. Tested on macOS 27 with a quarantined copy: it shows the normal *"PowerBar" Not Opened* dialog (not "damaged"), so *Privacy & Security ▸ Open Anyway* works; the README's install steps rely on that.
 - The app icon (`Resources/AppIcon.icns`, committed) comes from `swift scripts/make-icon.swift`: the SF Symbol `bolt.fill` on a rounded square, drawn through AppKit because the SF fonts have no bolt glyph. The icon matters: PowerBar is a login item and must be recognisable in Login Items.
 
 ## Releases and CI
-- The version lives in `scripts/build.sh` (`VERSION`). Bump it, add a `CHANGELOG.md` entry, tag `vX.Y.Z` and make a GitHub Release from the changelog entry.
+- The version lives in `scripts/build.sh` (`VERSION`). To release: bump it, give the `CHANGELOG.md` entry its date (heading `## X.Y.Z — YYYY-MM-DD`), let CI pass, move `main`, then push tag `vX.Y.Z`. `.github/workflows/release.yml` checks the version, builds, zips, attests and creates the GitHub Release with `PowerBar.zip`, its `.sha256` and the changelog entry as notes. Don't create the release by hand.
 - CI (`.github/workflows/ci.yml`) runs on every push: `swift test`, the app build and shellcheck. `main` is only moved (fast-forward) to a commit whose CI run is green; no PRs needed for solo work.
 
 ## Possible next steps
-- A downloadable, notarized PowerBar.app (needs a paid Apple Developer ID), then a Homebrew cask for it.
+- Notarize the download (needs a paid Apple Developer ID), so the Open Anyway step disappears; then a Homebrew cask is possible too.

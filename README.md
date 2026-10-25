@@ -21,7 +21,21 @@ Works on Apple Silicon Macs (M1 and later) with macOS 13 or later.
 
 ## Install
 
-PowerBar is built from source. You need Xcode or the Command Line Tools (Swift 5.9+; run `xcode-select --install` if `swift` is missing).
+1. Download [**PowerBar.zip**](https://github.com/michielwittkampf/powerbar/releases/latest/download/PowerBar.zip) from the [latest release](https://github.com/michielwittkampf/powerbar/releases/latest), open it, and drag **PowerBar** to your Applications folder.
+2. Open PowerBar. macOS says *"PowerBar" Not Opened*, because the app isn't notarized by Apple (that needs a paid developer account). Click **Done**.
+3. Open **System Settings ▸ Privacy & Security**, scroll down to *"PowerBar" was blocked…* and click **Open Anyway**, then confirm with your password or Touch ID.
+4. Open PowerBar again and confirm. From then on it starts like any other app.
+
+Choose *Open at Login* in the PowerBar menu if you want it to start with your Mac.
+
+- **Update:** download the new release and replace the app. Your settings stay.
+- **Remove:** turn off *Open at Login*, quit PowerBar, then delete PowerBar from Applications (and `~/.config/powerbar` if you want your settings gone).
+
+**Is the download really built from this code?** GitHub Actions builds it from the release tag, and signs a build provenance record. With the [GitHub CLI](https://cli.github.com) you can check that: `gh attestation verify PowerBar.zip -R michielwittkampf/powerbar`. Each release also lists the zip's SHA-256 checksum.
+
+### Build it yourself
+
+If you'd rather not run a downloaded app, build it from source. You need Xcode or the Command Line Tools (Swift 5.9+; run `xcode-select --install` if `swift` is missing). No Gatekeeper steps are needed for an app you build yourself.
 
 ```bash
 git clone https://github.com/michielwittkampf/powerbar.git
@@ -29,12 +43,7 @@ cd powerbar
 scripts/build.sh --install   # builds PowerBar.app, copies it to ~/Applications and starts it
 ```
 
-Then choose *Open at Login* in the PowerBar menu if you want it to start with your Mac.
-
-- **Update:** `git pull`, then `scripts/build.sh --install` again. Your settings stay.
-- **Remove:** turn off *Open at Login*, quit PowerBar, then delete `~/Applications/PowerBar.app` (and `~/.config/powerbar` if you want your settings gone).
-
-There is no ready-made download: an app without a paid, notarized Apple Developer ID signature is blocked by Gatekeeper.
+To update, `git pull` and run `scripts/build.sh --install` again.
 
 ## Settings
 
@@ -56,7 +65,7 @@ Unknown keys, values that aren't plain numbers and values outside the allowed ra
 
 - **No network, no root.** PowerBar reads one SMC key (`PSTR`) through the `AppleSMC` IOKit service, read-only, as a normal user. It doesn't connect to the internet: only *Documentation* and the link under *About* open this page in your browser.
 - **Files it touches:** it reads `~/.config/powerbar/config`. *Settings…* creates that file from the example if it doesn't exist; an existing file is never overwritten. *Open at Login* registers the app with macOS (`SMAppService`); nothing else is installed.
-- **Signing:** `scripts/build.sh` signs the app ad hoc, with the hardened runtime. That's fine for an app you build yourself. It has no Developer ID and isn't notarized.
+- **Signing:** the app is signed ad hoc, with the hardened runtime. It has no Apple Developer ID and isn't notarized, which is why macOS asks you to allow it once (see *Install*).
 
 Found a security problem? Please report it privately through [GitHub's security advisories](https://github.com/michielwittkampf/powerbar/security/advisories/new) instead of a public issue.
 
